@@ -12,7 +12,7 @@ setup(
     packages=['ultipro', 'ultipro.services'],
     license='Apache License 2.0',
     install_requires=[
-        'backoff==1.4.3',
+        'backoff>=1.4.3',
         'click==6.7',
         'configparser==3.5.0',
         'zeep==2.0.0'
