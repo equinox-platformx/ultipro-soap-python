@@ -1,11 +1,12 @@
-from zeep import Client as ZeepClient
-from zeep import Plugin
+import backoff  # Helps handle intermittent 405 errors from server
+import requests
 import ultipro.helpers
 from ultipro.helpers import backoff_hdlr
-import requests
-import backoff # Helps handle intermittent 405 errors from server
+from zeep import Client as ZeepClient
+from zeep import Plugin
 
 endpoint = 'BiStreamingService'
+
 
 @backoff.on_exception(backoff.expo, requests.exceptions.HTTPError, max_tries=8, on_backoff=backoff_hdlr)
 @backoff.on_predicate(backoff.fibo, lambda x: x['header']['Status'] == 'Working', on_backoff=backoff_hdlr)
