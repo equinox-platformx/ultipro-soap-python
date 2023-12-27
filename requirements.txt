@@ -1,4 +1,4 @@
 backoff>=2.2.1
-click==6.7
-configparser==3.5.0
+click==8.1.7
+configparser==6.0.0
 zeep==4.2.1
