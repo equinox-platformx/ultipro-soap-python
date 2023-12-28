@@ -1,13 +1,14 @@
-import click
-import os
-import time
+import configparser
+import csv
 import datetime
 import decimal
 import json
-import csv
-import configparser
-from ultipro.client import UltiProClient
+import os
+import time
+
+import click
 import ultipro.helpers as helpers
+from ultipro.client import UltiProClient
 from ultipro.services import *
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -16,8 +17,8 @@ DEFAULT_BASENAME = f"UltiPro-Report-{timestr}.csv"
 DEFAULT_CONFIG = os.path.join(click.get_app_dir('ultipro-soap-python'), 'config.ini')
 DEFAULT_OUTFILE = f"{HOME}/Desktop/{DEFAULT_BASENAME}"
 
-class UltiProEncoder(json.JSONEncoder):
 
+class UltiProEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
             return str(obj)
@@ -26,26 +27,20 @@ class UltiProEncoder(json.JSONEncoder):
 
         return json.UltiProEncoder.default(self, obj)
 
+
 @click.group()
-@click.option('--config',
-              '-f',
-              default=DEFAULT_CONFIG,
-              help='UltiPro API config.ini file path.',
-              type=click.Path(exists=True))
-@click.option('--outfile',
-              '-o',
-              default=DEFAULT_OUTFILE,
-              help='File to write to, with extension.',
-              type=click.Path())
-@click.option('--print/--no-print',
-              default=False,
-              help='Whether to print results to the console.')
+@click.option(
+    '--config', '-f', default=DEFAULT_CONFIG, help='UltiPro API config.ini file path.', type=click.Path(exists=True)
+)
+@click.option('--outfile', '-o', default=DEFAULT_OUTFILE, help='File to write to, with extension.', type=click.Path())
+@click.option('--print/--no-print', default=False, help='Whether to print results to the console.')
 @click.pass_context
 def cli(ctx, config, outfile, print):
     click.echo(f"Using config file: {config}")
     ctx.obj = helpers.read_conf(config)
     ctx.obj['outfile'] = outfile
     ctx.obj['print'] = print
+
 
 ## This is the CLI code for querying via SOAP
 ## Currently removed in favor of pulling reports via BI endpoint only
@@ -151,6 +146,7 @@ def cli(ctx, config, outfile, print):
 # def get_by_id(ctx, firstname, lastname, employeenumber, job_info, person_info,
 #               address_info, term_info, phone_info, employee_info, comp_info):
 
+
 @cli.command()
 @click.argument('report_path')
 @click.pass_context
@@ -165,6 +161,7 @@ def report(ctx, report_path):
         click.echo(f"Saved output file as: {ctx.obj['outfile']}")
     return data
 
+
 def write_json(ctx, r):
     outfile = ctx.obj['outfile'] + '.json'
     click.echo(f"JSON saved to: {outfile}")
@@ -173,12 +170,13 @@ def write_json(ctx, r):
         f.write(json_str)
     return json_str
 
+
 def create_client(ctx):
     client = UltiProClient(
         ctx.obj['ULTIPRO.username'],
         ctx.obj['ULTIPRO.password'],
         ctx.obj['ULTIPRO.client_access_key'],
         ctx.obj['ULTIPRO.user_access_key'],
-        ctx.obj['ULTIPRO.base_url']
+        ctx.obj['ULTIPRO.base_url'],
     )
     return client
